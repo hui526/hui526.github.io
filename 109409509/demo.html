@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        
+            <title>匯率轉換計算機</title> 
+            <meta charset="utf-8">
+            <link rel="stylesheet" href="mystyle.css">
+            <script>
+                function convertCurrency() {
+                    var taiwanAmount = document.getElementById("taiwanAmount").value;
+        
+                    // (5)有效值檢查
+                    
+                    if (isNaN(taiwanAmount) || taiwanAmount.trim() === "") {
+                        alert("請輸入有效數值");
+                        resetForm();
+                        return;
+                    }
+        
+                    taiwanAmount = parseFloat(taiwanAmount);
+        
+                    
+                    var parser = new DOMParser();
+        
+                    // (1)(2)匯率轉換&讀取                                （我試了非常多次xml另外開一個xml但都無法呈現出結果來）  
+
+                                                                            // 讀取匯率資訊的XML檔案
+                                                                            // var xmlDoc = loadXMLDoc("rate.xml");
+
+                                                                            // 取得匯率資訊
+                                                                            /*var exchangeRates = {};
+                                                                            var currencies = xmlDoc.getElementsByTagName("currency");
+                                                                            for (var i = 0; i < currencies.length; i++) {
+                                                                                var currency = currencies[i];
+                                                                                var code = currency.getAttribute("code");
+                                                                                var rate = parseFloat(currency.textContent);
+                                                                                exchangeRates[code] = rate;
+                                                                            }*/
+
+                    var xmlData = `
+                        <exchangeRates>
+                            <currency code="USD">30.27</currency>
+                            <currency code="EUR">32.11</currency>
+                            <currency code="JPY">0.2091</currency>
+                            <currency code="KRW">0.02147</currency>
+                            <currency code="AUD">19.67</currency>
+                        </exchangeRates>
+                    `;
+        
+
+                    var xmlDoc = parser.parseFromString(xmlData, "text/xml");
+        
+                    // 取得匯率資訊
+                    var exchangeRates = {};
+                    var currencies = xmlDoc.getElementsByTagName("currency");
+                    for (var i = 0; i < currencies.length; i++) {
+                        var currency = currencies[i];
+                        var code = currency.getAttribute("code");
+                        var rate = parseFloat(currency.textContent);
+                        exchangeRates[code] = rate;
+                    }
+        
+                    // 計算轉換後的金額
+                    var usdAmount = taiwanAmount / exchangeRates.USD;
+                    var eurAmount = taiwanAmount / exchangeRates.EUR;
+                    var jpyAmount = taiwanAmount / exchangeRates.JPY;
+                    var krwAmount = taiwanAmount / exchangeRates.KRW;
+                    var audAmount = taiwanAmount / exchangeRates.AUD;
+        
+                    // 更新結果顯示
+                    document.getElementById("usdAmount").textContent = usdAmount.toFixed(2) + " USD";
+                    document.getElementById("eurAmount").textContent = eurAmount.toFixed(2) + " EUR";
+                    document.getElementById("jpyAmount").textContent = jpyAmount.toFixed(2) + " JPY";
+                    document.getElementById("krwAmount").textContent = krwAmount.toFixed(2) + " KRW";
+                    document.getElementById("audAmount").textContent = audAmount.toFixed(2) + " AUD";
+                }
+        
+                function resetForm() {
+                    // (4)reset
+                    
+                    document.getElementById("taiwanAmount").value = "";
+                    document.getElementById("usdAmount").textContent = "";
+                    document.getElementById("eurAmount").textContent = "";
+                    document.getElementById("jpyAmount").textContent = "";
+                    document.getElementById("krwAmount").textContent = "";
+                    document.getElementById("audAmount").textContent = "";
+                }
+            </script>
+        </head>
+        <body>
+            <h1>匯率轉換計算機</h1>
+            <h4>這是一個匯率計算機，能幫您轉換成五種貨幣分別為usd,eur,jpy,krw,aud</h4>
+            <p><a>請輸入台幣金額：</a></p>
+            <input type="text" id="taiwanAmount" placeholder="輸入金額">
+            <button onclick="convertCurrency()">按我計算</button>
+            <button onclick="resetForm()">重新開始</button>
+            <h2>轉換結果：</h2>
+            <ul>
+              <li>美金：<span id="usdAmount"></span></li>
+              <li>歐元：<span id="eurAmount"></span></li>
+              <li>日圓：<span id="jpyAmount"></span></li>
+              <li>韓元：<span id="krwAmount"></span></li> 
+              <li>澳幣：<span id="audAmount"></span></li>
+            </ul>
+            
+        </body>
+        
+        </html>
